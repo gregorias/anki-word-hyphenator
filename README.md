@@ -10,7 +10,9 @@ An Anki plugin that hyphenates words during editing.
 
 ## For Developers
 
-Use pipenv to set up the dev and prod environment.
+Run `git submodule sync` to initialize the repository after cloning.
+
+Use direnv to set up the development environment (see `.envrc`).
 
 ### Testing
 

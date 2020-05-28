@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+cd wordhyphenator
+zip -r ../wordhyphenator.ankiaddon *.py *.json icons/*.png
+cd ../deps/Pyphen
+zip -r ../../wordhyphenator.ankiaddon pyphen/*.py pyphen/dictionaries
+cd ../langdetect
+zip -r ../../wordhyphenator.ankiaddon langdetect/{profiles,utils,*.py} \
+  --exclude='*__pycache__*'

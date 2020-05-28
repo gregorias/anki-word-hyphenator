@@ -1,0 +1,6 @@
+[submodule "Pyphen"]
+	path = deps/Pyphen
+	url = https://github.com/Kozea/Pyphen
+[submodule "langdetect"]
+	path = deps/langdetect
+	url = https://github.com/Mimino666/langdetect

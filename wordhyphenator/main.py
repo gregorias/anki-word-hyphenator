@@ -127,8 +127,13 @@ def hyphenate_action(editor) -> None:
     field = editor.note.fields[editor.currentField]
     new_field = hyphenate(field)
     editor.note.fields[editor.currentField] = new_field
-    editor.note.flush()
-    editor.mw.reset()
+    # That's how aqt.editor.onHtmlEdit saves cards.
+    # It's better than `editor.mw.reset()`, because the latter loses focus.
+    # Calls like editor.mw.reset() or editor.loadNote() are necessary to save
+    # HTML changes.
+    if not editor.addMode:
+        editor.note.flush()
+    editor.loadNoteKeepingFocus()
 
 
 def on_editor_buttons_init(buttons: List, editor) -> None:

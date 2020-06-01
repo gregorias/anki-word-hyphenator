@@ -30,7 +30,7 @@ def get_config(key: str, default):
     return (config and config.get(key, default)) or default
 
 
-SHY_ENT = '&shy;'
+SHY = '\xad'
 
 
 def chunkify(text: str) -> List[str]:
@@ -60,18 +60,18 @@ def hyphenate_single_words(dic, text: str) -> str:
         if i % 2 == 0:
             new_chunks.append(chunk)
         else:
-            new_chunks.append(dic.inserted(chunk, str(SHY_ENT)))
+            new_chunks.append(dic.inserted(chunk, SHY))
     return ''.join(new_chunks)
 
 
 def hyphenate_end_node(dic, text: str) -> str:
     output = hyphenate_single_words(dic, text)
 
-    find_hyphen_in_mathjax = r'\\\((.*?)&shy;(.*?)\\\)'
+    find_hyphen_in_mathjax = r'\\\((.*?)' + SHY + r'(.*?)\\\)'
     while re.search(find_hyphen_in_mathjax, output):
         output = re.sub(find_hyphen_in_mathjax, r'\(\1\2\)', output)
 
-    find_hyphen_in_mathjax = r'\\\[(.*?)&shy;(.*?)\\\]'
+    find_hyphen_in_mathjax = r'\\\[(.*?)' + SHY + r'(.*?)\\\]'
     while re.search(find_hyphen_in_mathjax, output):
         output = re.sub(find_hyphen_in_mathjax, r'\[\1\2\]', output)
 
@@ -86,12 +86,15 @@ def only_printable(text: str) -> str:
     return str.join('', filter(lambda x: x.isprintable(), text))
 
 
-def encode_navigable_string(ns: NavigableString) -> str:
-    return BeautifulSoup(
-        ns, features='html.parser').encode(formatter='html5').decode('UTF-8')
-
-
 def hyphenate(html: str) -> str:
+    """Hyphenates the HTML document.
+
+    >>> hyphenate('<div>&asymp; hyphenation</div>')
+    '<div>\n &asymp; hy&shy;phen&shy;ation\n</div>')
+
+    Returns:
+        An HTML-encoded string with hyphenation.
+    """
     bs = BeautifulSoup(html, features='html.parser')
     text_nodes = bs.findAll(text=True)
     for text_node in text_nodes:
@@ -109,11 +112,8 @@ def hyphenate(html: str) -> str:
         except (langdetect.lang_detect_exception.LangDetectException, KeyError):
             continue
 
-        # hyphenate_end_node expect HTML-encoded text, e.g., '&shy;'s not
-        # '\xad's, so encode text_node.
-        new_text = hyphenate_end_node(dic, encode_navigable_string(text_node))
-        # Decode HTML back for replacing with BeautifulSoup
-        text_node.replaceWith(BeautifulSoup(new_text, features='html.parser'))
+        new_text = hyphenate_end_node(dic, text_node)
+        text_node.replaceWith(new_text)
     return bs.prettify(formatter='html5')
 
 

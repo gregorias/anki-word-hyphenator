@@ -50,6 +50,10 @@ class HyphenateTestCase(unittest.TestCase):
             chunkify('hello-wordls&nbsp; you did '),
             ['', 'hello', '-', 'wordls', '&nbsp; ', 'you', ' ', 'did', ' '])
 
+    def test_hyphenate_hyphenates_hyphenation(self):
+        assertHtmlEqual(self, hyphenate('<div>&asymp; hyphenation</div>'),
+                        '<div>&asymp; hy&shy;phen&shy;ation</div>')
+
     def test_hyphenate(self):
         for (in_file, out_file) in self.inouts:
             assertHtmlEqual(
@@ -61,7 +65,7 @@ class HyphenateTestCase(unittest.TestCase):
         self.assertEqual(
             hyphenate_end_node(pyphen.Pyphen(lang='pl'),
                       r'{{c1::Przekleństwem zasobów}}'),
-            '{{c1::Prze&shy;kleń&shy;stwem za&shy;so&shy;bów}}')
+            '{{c1::Prze\xadkleń\xadstwem za\xadso\xadbów}}')
 
     def test_dont_hyphenate_sind(self):
         self.assertEqual(

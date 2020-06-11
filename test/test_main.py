@@ -37,8 +37,8 @@ def read_file(f):
 
 def assertHtmlEqual(self, a: str, b: str, msg=None):
     self.assertEqual(
-        bs(a, features='html.parser').prettify(formatter='html5'),
-        bs(b, features='html.parser').prettify(formatter='html5'), msg)
+        bs(a, features='html.parser').encode(formatter='html5'),
+        bs(b, features='html.parser').encode(formatter='html5'), msg)
 
 
 class HyphenateTestCase(unittest.TestCase):
@@ -49,6 +49,9 @@ class HyphenateTestCase(unittest.TestCase):
         self.assertListEqual(
             chunkify('hello-wordls&nbsp; you did '),
             ['', 'hello', '-', 'wordls', '&nbsp; ', 'you', ' ', 'did', ' '])
+
+    def test_hyphenate_doesnt_add_spurious_whitespace(self):
+        self.assertEqual(hyphenate('<q>word</q>'), '<q>word</q>')
 
     def test_hyphenate_hyphenates_hyphenation(self):
         assertHtmlEqual(self, hyphenate('<div>&asymp; hyphenation</div>'),
@@ -69,7 +72,7 @@ class HyphenateTestCase(unittest.TestCase):
 
     def test_dont_hyphenate_sind(self):
         self.assertEqual(
-            hyphenate(r'Kinder sind dumm.'), 'Kin&shy;der sind dumm.\n')
+            hyphenate(r'Kinder sind dumm.'), 'Kin&shy;der sind dumm.')
 
     def test_dont_hyphenate_round_mathjax_but_hyphenate_the_rest(self):
         # Add hello, so that the algorithm recognizes the text as English.
@@ -84,4 +87,4 @@ class HyphenateTestCase(unittest.TestCase):
             'hel&shy;lo \[\ldots\] di&shy;gi&shy;ta&shy;li&shy;za&shy;tion')
 
     def test_handle_br(self):
-        self.assertEqual(hyphenate('<br>'), '<br>\n')
+        self.assertEqual(hyphenate('<br>'), '<br>')

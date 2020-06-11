@@ -90,10 +90,10 @@ def hyphenate(html: str) -> str:
     """Hyphenates the HTML document.
 
     >>> hyphenate('<div>&asymp; hyphenation</div>')
-    '<div>\n &asymp; hy&shy;phen&shy;ation\n</div>')
+    '<div>&asymp; hy&shy;phen&shy;ation</div>')
 
     Returns:
-        An HTML-encoded string with hyphenation.
+        An HTML5-encoded string with hyphenation.
     """
     bs = BeautifulSoup(html, features='html.parser')
     text_nodes = bs.findAll(text=True)
@@ -114,7 +114,7 @@ def hyphenate(html: str) -> str:
 
         new_text = hyphenate_end_node(dic, text_node)
         text_node.replaceWith(new_text)
-    return bs.prettify(formatter='html5')
+    return str(bs.encode(formatter='html5'), 'utf8')
 
 
 def hyphenate_action(editor) -> None:

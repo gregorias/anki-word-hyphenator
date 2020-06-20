@@ -88,3 +88,6 @@ class HyphenateTestCase(unittest.TestCase):
 
     def test_handle_br(self):
         self.assertEqual(hyphenate('<br>'), '<br>')
+
+    def test_hyphenate_ignores_comments(self):
+        self.assertEqual(hyphenate('<!--comment-->'), '<!--comment-->')

@@ -98,6 +98,11 @@ def hyphenate(html: str) -> str:
     bs = BeautifulSoup(html, features='html.parser')
     text_nodes = bs.findAll(text=True)
     for text_node in text_nodes:
+        if isinstance(text_node, bs4.Comment):
+            continue
+
+        # Here my intention is to remove silent-hyphens, so that language
+        # detection works correctly.
         printable_text = only_printable(text_node)
         if should_ignore(printable_text):
             continue

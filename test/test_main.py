@@ -10,7 +10,7 @@ import unittest
 from bs4 import BeautifulSoup as bs  # type: ignore
 
 import pyphen # type: ignore
-from wordhyphenator.main import chunkify, hyphenate, hyphenate_end_node
+from wordhyphenator.main import chunkify, hyphenate, hyphenate_end_node, use_minimal_html_formatting
 
 def get_testdata_dir():
     test_dir = path.dirname(path.realpath(__file__))
@@ -91,3 +91,10 @@ class HyphenateTestCase(unittest.TestCase):
 
     def test_hyphenate_ignores_comments(self):
         self.assertEqual(hyphenate('<!--comment-->'), '<!--comment-->')
+
+    def test_use_minimal_html_formatting_fixes_img_src(self):
+        # '<img src="ber&uuml;hrung"/>' is a valid HTML, but Anki doesn't seem
+        # to correctly render it
+        self.assertEqual(
+            use_minimal_html_formatting('<img src="ber&uuml;hrung"/>'),
+            '<img src="berührung"/>')

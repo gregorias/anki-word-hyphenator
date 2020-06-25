@@ -122,6 +122,12 @@ def hyphenate(html: str) -> str:
     return str(bs.encode(formatter='html5'), 'utf8')
 
 
+def use_minimal_html_formatting(html: str) -> str:
+    """Reformats the HTML string using minimal encoding."""
+    bs = BeautifulSoup(html, features='html.parser')
+    return str(bs.encode(formatter='minimal'), 'utf8')
+
+
 def hyphenate_action(editor) -> None:
     if editor.currentField is None:
         showWarning(
@@ -130,8 +136,15 @@ def hyphenate_action(editor) -> None:
         return None
 
     field = editor.note.fields[editor.currentField]
-    new_field = hyphenate(field)
+    new_field_with_html5 = hyphenate(field)
+    # Reformatting is necessary, because
+    # * hyphenate('<img src="berührung">') == '<img src="ber&uuml;hrung"/>'
+    # * Anki desktop wouldn't display the `berührung` image when
+    #   `src="ber&uuml;hrung"` (even though it's valid HTML
+    #   (https://bit.ly/3ewd4bj)
+    new_field = use_minimal_html_formatting(new_field_with_html5)
     editor.note.fields[editor.currentField] = new_field
+
     # That's how aqt.editor.onHtmlEdit saves cards.
     # It's better than `editor.mw.reset()`, because the latter loses focus.
     # Calls like editor.mw.reset() or editor.loadNote() are necessary to save

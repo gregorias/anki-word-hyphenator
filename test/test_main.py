@@ -92,6 +92,10 @@ class HyphenateTestCase(unittest.TestCase):
     def test_hyphenate_ignores_comments(self):
         self.assertEqual(hyphenate('<!--comment-->'), '<!--comment-->')
 
+    def test_hyphenate_ignores_style_blocks(self):
+        self.assertEqual(hyphenate('<style>justify-content: center</style>'),
+                         '<style>justify-content: center</style>')
+
     def test_use_minimal_html_formatting_fixes_img_src(self):
         # '<img src="ber&uuml;hrung"/>' is a valid HTML, but Anki doesn't seem
         # to correctly render it

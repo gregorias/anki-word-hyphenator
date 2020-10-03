@@ -100,6 +100,8 @@ def hyphenate(html: str) -> str:
     for text_node in text_nodes:
         if isinstance(text_node, bs4.Comment):
             continue
+        if isinstance(text_node, bs4.element.Stylesheet):
+            continue
 
         # Here my intention is to remove silent-hyphens, so that language
         # detection works correctly.

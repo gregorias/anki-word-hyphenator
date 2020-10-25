@@ -86,6 +86,10 @@ def only_printable(text: str) -> str:
     return str.join('', filter(lambda x: x.isprintable(), text))
 
 
+def is_stylesheet_implemented() -> bool:
+    return getattr(bs4.element, 'Stylesheet', None) is not None
+
+
 def hyphenate(html: str) -> str:
     """Hyphenates the HTML document.
 
@@ -100,7 +104,13 @@ def hyphenate(html: str) -> str:
     for text_node in text_nodes:
         if isinstance(text_node, bs4.Comment):
             continue
-        if isinstance(text_node, bs4.element.Stylesheet):
+        # We check whether `Stylesheet` is implemented, because it's a
+        # relatively recent addition to BeautifulSoup
+        # (https://bazaar.launchpad.net/~leonardr/beautifulsoup/bs4/revision/564).
+        # In case it is not, we don't skip <style> nodes. This will mangle
+        # stylesheets if they exist, but that is a cost I'm willing to take.
+        if (is_stylesheet_implemented() and
+                isinstance(text_node, bs4.element.Stylesheet)):
             continue
 
         # Here my intention is to remove silent-hyphens, so that language

@@ -21,10 +21,10 @@ def get_golden_pairs():
     testdata_dir = get_testdata_dir()
     testdata_files = os.listdir(testdata_dir)
 
-    matches = [re.match('in(\d+).html', f) for f in testdata_files]
+    matches = [re.match('in(.+).html', f) for f in testdata_files]
 
-    def out_name(no):
-        return path.join(testdata_dir, 'out{no:s}.html'.format(no=no))
+    def out_name(name):
+        return path.join(testdata_dir, 'out{name:s}.html'.format(name=name))
 
     return [(path.join(testdata_dir, m.group(0)), out_name(m.group(1)))
             for m in matches if m]

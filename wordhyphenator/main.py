@@ -90,6 +90,85 @@ def is_stylesheet_implemented() -> bool:
     return getattr(bs4.element, 'Stylesheet', None) is not None
 
 
+class DfsStack:
+    def __init__(self, initial_nodes):
+        self.nodes = list(initial_nodes)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.nodes:
+            top = self.nodes[-1]
+            self.nodes.pop()
+            return top
+        else:
+            raise StopIteration()
+
+    def send(self, new_nodes: List[bs4.PageElement]):
+        self.nodes.extend(list(new_nodes))
+
+
+def visit_and_hyphenate(
+        node: bs4.PageElement) -> Optional[List[bs4.PageElement]]:
+    """Visits HTML nodes and hyphenates text.
+
+    Returns:
+        Children of tag elements that should be further processed, e.g., <pre>
+        elements are skipped.
+    """
+    if isinstance(node, bs4.Comment):
+        return None
+
+    # We check whether `Stylesheet` is implemented, because it's a
+    # relatively recent addition to BeautifulSoup
+    # (https://bazaar.launchpad.net/~leonardr/beautifulsoup/bs4/revision/564).
+    # In case it is not, we don't skip <style> nodes. This will mangle
+    # stylesheets if they exist, but that is a cost I'm willing to take.
+    if (is_stylesheet_implemented() and
+            isinstance(node, bs4.element.Stylesheet)):
+        return None
+
+    if isinstance(node, bs4.Tag):
+        if node.name == 'pre':
+            return None
+        if node.name == 'style':
+            return None
+        return node.children
+
+    if not isinstance(node, bs4.NavigableString):
+        return None
+
+    # My intention is to remove silent-hyphens, so that language detection
+    # works correctly.
+    printable_text = only_printable(node)
+    if should_ignore(printable_text):
+        return None
+
+    try:
+        lang = langdetect.detect(printable_text)
+        if lang == 'en':
+            # Use US dictionary for English, because it seems that the US
+            # dictionary is richer. For example en_GB doesn't hyphenate
+            # "format," but US does ("for-mat").
+            lang = 'en_US'
+        dic = pyphen.Pyphen(lang=lang)
+    except (langdetect.lang_detect_exception.LangDetectException, KeyError):
+        return None
+
+    new_text = hyphenate_end_node(dic, node)
+    node.replaceWith(new_text)
+    return None
+
+
+def walk(soup: bs4.BeautifulSoup, func):
+    dfs_stack = DfsStack(soup.children)
+    for node in dfs_stack:
+        maybe_more_nodes = func(node)
+        if maybe_more_nodes:
+            dfs_stack.send(maybe_more_nodes)
+
+
 def hyphenate(html: str) -> str:
     """Hyphenates the HTML document.
 
@@ -99,39 +178,9 @@ def hyphenate(html: str) -> str:
     Returns:
         An HTML5-encoded string with hyphenation.
     """
-    bs = BeautifulSoup(html, features='html.parser')
-    text_nodes = bs.findAll(text=True)
-    for text_node in text_nodes:
-        if isinstance(text_node, bs4.Comment):
-            continue
-        # We check whether `Stylesheet` is implemented, because it's a
-        # relatively recent addition to BeautifulSoup
-        # (https://bazaar.launchpad.net/~leonardr/beautifulsoup/bs4/revision/564).
-        # In case it is not, we don't skip <style> nodes. This will mangle
-        # stylesheets if they exist, but that is a cost I'm willing to take.
-        if (is_stylesheet_implemented() and
-                isinstance(text_node, bs4.element.Stylesheet)):
-            continue
-
-        # Here my intention is to remove silent-hyphens, so that language
-        # detection works correctly.
-        printable_text = only_printable(text_node)
-        if should_ignore(printable_text):
-            continue
-        try:
-            lang = langdetect.detect(printable_text)
-            if lang == 'en':
-                # Use US dictionary for English, because it seems that the US
-                # dictionary is richer. For example en_GB doesn't hyphenate
-                # "format," but US does ("for-mat").
-                lang = 'en_US'
-            dic = pyphen.Pyphen(lang=lang)
-        except (langdetect.lang_detect_exception.LangDetectException, KeyError):
-            continue
-
-        new_text = hyphenate_end_node(dic, text_node)
-        text_node.replaceWith(new_text)
-    return str(bs.encode(formatter='html5'), 'utf8')
+    soup = BeautifulSoup(html, features='html.parser')
+    walk(soup, visit_and_hyphenate)
+    return str(soup.encode(formatter='html5'), 'utf8')
 
 
 def use_minimal_html_formatting(html: str) -> str:

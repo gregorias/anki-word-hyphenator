@@ -10,10 +10,10 @@ mypy = "*"
 grip = "*"
 
 [packages]
-anki = "==2.1.38"
-aqt = "==2.1.38"
+anki = "==2.1.*"
+aqt = "==2.1.*"
 pyqt5 = "==5.14"
 pyqtwebengine = "==5.14"
 
 [requires]
-python_version = "3.9"
+python_version = "3.10"

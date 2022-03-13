@@ -4,23 +4,22 @@ import os.path
 import re
 from typing import List, Optional
 
-import aqt
-from aqt import gui_hooks
-from aqt.utils import showWarning
+import aqt  # type: ignore
+from aqt import gui_hooks  # type: ignore
+from aqt.utils import showWarning  # type: ignore
 import bs4  # type: ignore
 from bs4 import BeautifulSoup, NavigableString  # type: ignore
 
 # Import locally in case we are executing as a packaged Anki addon
 try:
-    from . import langdetect # type: ignore
+    from . import langdetect  # type: ignore
 except ImportError:
-    import langdetect # type: ignore
+    import langdetect  # type: ignore
 
 try:
-    from . import pyphen # type: ignore
+    from . import pyphen  # type: ignore
 except ImportError:
-    import pyphen # type: ignore
-
+    import pyphen  # type: ignore
 
 addon_path = os.path.dirname(__file__)
 config = aqt.mw and aqt.mw.addonManager.getConfig(__name__)
@@ -91,6 +90,7 @@ def is_stylesheet_implemented() -> bool:
 
 
 class DfsStack:
+
     def __init__(self, initial_nodes):
         self.nodes = list(initial_nodes)
 
@@ -125,8 +125,8 @@ def visit_and_hyphenate(
     # (https://bazaar.launchpad.net/~leonardr/beautifulsoup/bs4/revision/564).
     # In case it is not, we don't skip <style> nodes. This will mangle
     # stylesheets if they exist, but that is a cost I'm willing to take.
-    if (is_stylesheet_implemented() and
-            isinstance(node, bs4.element.Stylesheet)):
+    if (is_stylesheet_implemented()
+            and isinstance(node, bs4.element.Stylesheet)):
         return None
 
     if isinstance(node, bs4.Tag):

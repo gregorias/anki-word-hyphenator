@@ -1,0 +1,17 @@
+pre-commit:
+  commands:
+    markdownlint:
+      tags: documentation style lint
+      files: git diff --name-only --cached --diff-filter=AM
+      glob: '*.md'
+      run: markdownlint {files}
+    yapf:
+      tags: style
+      glob: '*.py'
+      run: yapf -i -r {staged_files} && git add {staged_files}
+    unit-tests:
+      run: "./dev/bin/testall"
+commit-msg:
+  commands:
+    commitlint:
+      run: "commitlint --edit={1}"

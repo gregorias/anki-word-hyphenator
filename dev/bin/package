@@ -7,3 +7,5 @@ zip -r ../../wordhyphenator.ankiaddon pyphen/*.py pyphen/dictionaries
 cd ../langdetect
 zip -r ../../wordhyphenator.ankiaddon langdetect/{profiles,utils,*.py} \
   --exclude='*__pycache__*'
+cd ..
+zip ../wordhyphenator.ankiaddon six.py

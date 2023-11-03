@@ -42,6 +42,9 @@ Pyphen stopped working with Python 3.9 after 0.13.2, so keep it pinned
 at 0.13.2. We can't update Python, because as of 2023-11-03, Anki uses
 Python 3.9.
 
+I include six.py, because [langdetect needs
+it](https://github.com/Mimino666/langdetect/blob/a1598f1afcbfe9a758cfd06bd688fbc5780177b2/langdetect/detector.py#L4).
+
 ## Release & distribution
 
 1. Create a release commit.

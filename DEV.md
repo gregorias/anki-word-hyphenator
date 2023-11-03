@@ -2,7 +2,7 @@
 
 This is a documentation file for this plugin's developers.
 
-## Dev Environment Setup
+## Dev environment setup
 
 This project requires
 
@@ -35,6 +35,12 @@ This project requires
 2. Test supported Anki versions (2.1.49 and latest) by packaging the
    plugin and importing the plugin into the lowest and the newest
    support Anki.
+
+## Runtime dependencies
+
+Pyphen stopped working with Python 3.9 after 0.13.2, so keep it pinned
+at 0.13.2. We can't update Python, because as of 2023-11-03, Anki uses
+Python 3.9.
 
 ## Release & distribution
 

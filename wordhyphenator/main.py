@@ -2,7 +2,10 @@
 """The implementation of the word hyphenator plugin."""
 import os.path
 import re
+import sys
 from typing import List, Optional
+
+sys.path.append(os.path.dirname(__file__))
 
 import aqt  # type: ignore
 from aqt import gui_hooks  # type: ignore

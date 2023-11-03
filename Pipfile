@@ -3,14 +3,11 @@ name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
 
-[dev-packages]
-bpython = "*"
-
 [packages]
-anki = "==2.1.*"
-aqt = "==2.1.*"
-pyqt5 = "==5.*"
-pyqtwebengine = "==5.*"
+anki = "==23.10"
+aqt = "==23.10"
+pyqt6 = "==6.*"
+PyQt6-WebEngine = "==6.*"
 
 [requires]
 python_version = "3.9"

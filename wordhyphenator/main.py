@@ -8,9 +8,9 @@ from typing import List, Optional
 sys.path.append(os.path.dirname(__file__))
 
 import aqt  # type: ignore
+import bs4  # type: ignore
 from aqt import gui_hooks  # type: ignore
 from aqt.utils import showWarning  # type: ignore
-import bs4  # type: ignore
 from bs4 import BeautifulSoup, NavigableString  # type: ignore
 
 # Import locally in case we are executing as a packaged Anki addon
@@ -219,7 +219,8 @@ def hyphenate_action(editor) -> None:
 
 
 def on_editor_buttons_init(buttons: List, editor) -> None:
-    shortcut = get_config("shortcut", "ctrl+h")
+    #  Don’t use `ctrl-h`. `cmd-h` is already taken by MacOS to hide windows.
+    shortcut = get_config("shortcut", "ctrl+-")
     icon_path = os.path.join(addon_path, "icons", "silent hyphen.png")
     css = editor.addButton(
         icon=icon_path,

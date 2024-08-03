@@ -7,8 +7,10 @@ from typing import List, Optional
 
 sys.path.append(os.path.dirname(__file__))
 
+import anki  # type: ignore
 import aqt  # type: ignore
 import bs4  # type: ignore
+from anki import hooks
 from aqt import gui_hooks  # type: ignore
 from aqt.utils import showWarning  # type: ignore
 from bs4 import BeautifulSoup, NavigableString  # type: ignore
@@ -192,6 +194,21 @@ def use_minimal_html_formatting(html: str) -> str:
     return str(bs.encode(formatter='minimal'), 'utf8')
 
 
+def hyphenate_field(field: str) -> str:
+    """Hyphenates the field.
+
+    Returns:
+        A hyphenated field.
+    """
+    new_field_with_html5 = hyphenate(field)
+    # Reformatting is necessary, because
+    # * hyphenate('<img src="berührung">') == '<img src="ber&uuml;hrung"/>'
+    # * Anki desktop wouldn't display the `berührung` image when
+    #   `src="ber&uuml;hrung"` (even though it's valid HTML
+    #   (https://bit.ly/3ewd4bj)
+    return use_minimal_html_formatting(new_field_with_html5)
+
+
 def hyphenate_action(editor) -> None:
     if editor.currentField is None:
         showWarning(
@@ -200,13 +217,7 @@ def hyphenate_action(editor) -> None:
         return None
 
     field = editor.note.fields[editor.currentField]
-    new_field_with_html5 = hyphenate(field)
-    # Reformatting is necessary, because
-    # * hyphenate('<img src="berührung">') == '<img src="ber&uuml;hrung"/>'
-    # * Anki desktop wouldn't display the `berührung` image when
-    #   `src="ber&uuml;hrung"` (even though it's valid HTML
-    #   (https://bit.ly/3ewd4bj)
-    new_field = use_minimal_html_formatting(new_field_with_html5)
+    new_field = hyphenate_field(field)
     editor.note.fields[editor.currentField] = new_field
 
     # That's how aqt.editor.onHtmlEdit saves cards.
@@ -233,3 +244,15 @@ def on_editor_buttons_init(buttons: List, editor) -> None:
 
 
 gui_hooks.editor_did_init_buttons.append(on_editor_buttons_init)
+
+
+def on_note_will_flush(note: anki.notes.Note):
+    """Hyphenates all fields of the note."""
+    for key, field in note.items():
+        if field == "":
+            continue
+        note[key] = hyphenate_field(field)
+
+
+if get_config("apply_on_note_flush", False):
+    hooks.note_will_flush.append(on_note_will_flush)

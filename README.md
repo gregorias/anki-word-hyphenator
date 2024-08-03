@@ -30,3 +30,13 @@ tab](https://github.com/gregorias/anki-word-hyphenator/releases).
 1. Write some text in a field.
 2. Press `CTRL+-` (on macOS, `⌘+-`) or click this add-on’s button in the
    editor’s button bar.
+
+## ⚙️ Configuration
+
+The addon accepts the following configuration options:
+
+* `shortcut` (default: `"ctrl+-"` or `"cmd+-"`) — The keyboard shortcut for the
+  hyphenation action.
+* `apply_on_note_flush` (default: `false`) — Whether to apply the hyphenation
+  action on note saves. This feature is experimental. Let the maintainer
+  know if there any issues.

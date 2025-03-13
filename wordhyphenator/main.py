@@ -162,7 +162,7 @@ def visit_and_hyphenate(
         return None
 
     new_text = hyphenate_end_node(dic, node)
-    node.replaceWith(new_text)
+    node.replace_with(new_text)
     return None
 
 

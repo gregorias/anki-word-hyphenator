@@ -9,8 +9,9 @@ import unittest
 
 from bs4 import BeautifulSoup as bs  # type: ignore
 
-import pyphen # type: ignore
+import pyphen  # type: ignore
 from wordhyphenator.main import chunkify, hyphenate, hyphenate_end_node, use_minimal_html_formatting
+
 
 def get_testdata_dir():
     test_dir = path.dirname(path.realpath(__file__))
@@ -42,6 +43,7 @@ def assertHtmlEqual(self, a: str, b: str, msg=None):
 
 
 class HyphenateTestCase(unittest.TestCase):
+
     def setUp(self):
         self.inouts = get_golden_pairs()
 
@@ -67,12 +69,12 @@ class HyphenateTestCase(unittest.TestCase):
     def test_hyphenate_a_cloze_with_2_words(self):
         self.assertEqual(
             hyphenate_end_node(pyphen.Pyphen(lang='pl'),
-                      r'{{c1::Przekleństwem zasobów}}'),
+                               r'{{c1::Przekleństwem zasobów}}'),
             '{{c1::Prze\xadkleń\xadstwem za\xadso\xadbów}}')
 
     def test_dont_hyphenate_sind(self):
-        self.assertEqual(
-            hyphenate(r'Kinder sind dumm.'), 'Kin&shy;der sind dumm.')
+        self.assertEqual(hyphenate(r'Kinder sind dumm.'),
+                         'Kin&shy;der sind dumm.')
 
     def test_dont_hyphenate_round_mathjax_but_hyphenate_the_rest(self):
         # Add hello, so that the algorithm recognizes the text as English.
@@ -83,8 +85,8 @@ class HyphenateTestCase(unittest.TestCase):
     def test_dont_hyphenate_square_mathjax_but_hyphenate_the_rest(self):
         # Add hello, so that the algorithm recognizes the text as English.
         self.assertEqual(
-            hyphenate('hello \[\ldots\] digitalization').strip(),
-            'hel&shy;lo \[\ldots\] di&shy;gi&shy;ta&shy;li&shy;za&shy;tion')
+            hyphenate(r'hello \[\ldots\] digitalization').strip(),
+            r'hel&shy;lo \[\ldots\] di&shy;gi&shy;ta&shy;li&shy;za&shy;tion')
 
     def test_handle_br(self):
         self.assertEqual(hyphenate('<br>'), '<br>')

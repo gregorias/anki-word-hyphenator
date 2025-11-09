@@ -4,30 +4,39 @@ This is a documentation file for this plugin's developers.
 
 ## Dev environment setup
 
-This project requires
+This project requires the following tools:
 
-- [Lefthook](https://github.com/evilmartians/lefthook)
 - [Commitlint](https://github.com/conventional-changelog/commitlint)
+- [Lefthook](https://github.com/evilmartians/lefthook)
+- [Just]
+- [Pyenv]
+- [Uv]
 
 1. Run `git submodule sync` to initialize the repository after cloning.
 
 1. Install the required Python version:
 
-    ```shell
-    pyenv install
-    ```
+   ```shell
+   pyenv install
+   ```
 
-1. Set up Pipenv:
+1. Set up a local virtual environment:
 
-    ```shell
-    pipenv install --dev
-    ```
+   ```shell
+   uv venv
+   ```
+
+1. Install development dependencies:
+
+   ```shell
+   uv pip install --group dev
+   ```
 
 1. Install Lefthook:
 
-    ```shell
-    lefthook install
-    ```
+   ```shell
+   lefthook install
+   ```
 
 ## Testing
 
@@ -56,8 +65,8 @@ it](https://github.com/Mimino666/langdetect/blob/a1598f1afcbfe9a758cfd06bd688fbc
 ## Release & distribution
 
 1. Create a release commit.
-    1. Bump up the package version in `wordhyphenator/manifest.json`.
-    2. Tag the release commit `git tag vx.y.z && git push origin vx.y.z`.
+   1. Bump up the package version in `wordhyphenator/manifest.json`.
+   2. Tag the release commit `git tag vx.y.z && git push origin vx.y.z`.
 1. Use the `dev/bin/package` tool to create `wordhyphenator.ankiaddon`.
 1. Create a GitHub release: `gh release create vx.y.z wordhyphenator.ankiaddon`.
 1. [Share the package on Anki.](https://addon-docs.ankiweb.net/#/sharing)

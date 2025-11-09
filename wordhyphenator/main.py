@@ -34,13 +34,13 @@ def get_config(key: str, default):
     return (config and config.get(key, default)) or default
 
 
-SHY = '\xad'
+SHY = "\xad"
 
 
 def chunkify(text: str) -> List[str]:
     # Do not match HTML entities
-    html_entities = re.compile('(&[a-zA-Z]+;)')
-    words = re.compile(r'(\b\w+\b)')
+    html_entities = re.compile("(&[a-zA-Z]+;)")
+    words = re.compile(r"(\b\w+\b)")
     chunks = []
     non_word_chunks = []
     for i, chunk in enumerate(html_entities.split(text)):
@@ -49,12 +49,12 @@ def chunkify(text: str) -> List[str]:
                 if j % 2 == 0:
                     non_word_chunks.append(word)
                 else:
-                    chunks.append(''.join(non_word_chunks))
+                    chunks.append("".join(non_word_chunks))
                     non_word_chunks = []
                     chunks.append(word)
         else:
             non_word_chunks.append(chunk)
-    chunks.append(''.join(non_word_chunks))
+    chunks.append("".join(non_word_chunks))
     return chunks
 
 
@@ -65,33 +65,33 @@ def hyphenate_single_words(dic, text: str) -> str:
             new_chunks.append(chunk)
         else:
             new_chunks.append(dic.inserted(chunk, SHY))
-    return ''.join(new_chunks)
+    return "".join(new_chunks)
 
 
 def hyphenate_end_node(dic, text: str) -> str:
     output = hyphenate_single_words(dic, text)
 
-    find_hyphen_in_mathjax = r'\\\((.*?)' + SHY + r'(.*?)\\\)'
+    find_hyphen_in_mathjax = r"\\\((.*?)" + SHY + r"(.*?)\\\)"
     while re.search(find_hyphen_in_mathjax, output):
-        output = re.sub(find_hyphen_in_mathjax, r'\(\1\2\)', output)
+        output = re.sub(find_hyphen_in_mathjax, r"\(\1\2\)", output)
 
-    find_hyphen_in_mathjax = r'\\\[(.*?)' + SHY + r'(.*?)\\\]'
+    find_hyphen_in_mathjax = r"\\\[(.*?)" + SHY + r"(.*?)\\\]"
     while re.search(find_hyphen_in_mathjax, output):
-        output = re.sub(find_hyphen_in_mathjax, r'\[\1\2\]', output)
+        output = re.sub(find_hyphen_in_mathjax, r"\[\1\2\]", output)
 
     return output
 
 
 def should_ignore(text):
-    return bool(re.match(r'\[[^\]]+\]', text))
+    return bool(re.match(r"\[[^\]]+\]", text))
 
 
 def only_printable(text: str) -> str:
-    return str.join('', filter(lambda x: x.isprintable(), text))
+    return str.join("", filter(lambda x: x.isprintable(), text))
 
 
 def is_stylesheet_implemented() -> bool:
-    return getattr(bs4.element, 'Stylesheet', None) is not None
+    return getattr(bs4.element, "Stylesheet", None) is not None
 
 
 class DfsStack:
@@ -114,8 +114,7 @@ class DfsStack:
         self.nodes.extend(list(new_nodes))
 
 
-def visit_and_hyphenate(
-        node: bs4.PageElement) -> Optional[List[bs4.PageElement]]:
+def visit_and_hyphenate(node: bs4.PageElement) -> Optional[List[bs4.PageElement]]:
     """Visits HTML nodes and hyphenates text.
 
     Returns:
@@ -130,16 +129,15 @@ def visit_and_hyphenate(
     # (https://bazaar.launchpad.net/~leonardr/beautifulsoup/bs4/revision/564).
     # In case it is not, we don't skip <style> nodes. This will mangle
     # stylesheets if they exist, but that is a cost I'm willing to take.
-    if (is_stylesheet_implemented()
-            and isinstance(node, bs4.element.Stylesheet)):
+    if is_stylesheet_implemented() and isinstance(node, bs4.element.Stylesheet):
         return None
 
     if isinstance(node, bs4.Tag):
-        if node.name == 'pre':
+        if node.name == "pre":
             return None
-        if node.name == 'style':
+        if node.name == "style":
             return None
-        return node.children
+        return list(node.children)
 
     if not isinstance(node, bs4.NavigableString):
         return None
@@ -152,11 +150,11 @@ def visit_and_hyphenate(
 
     try:
         lang = langdetect.detect(printable_text)
-        if lang == 'en':
+        if lang == "en":
             # Use US dictionary for English, because it seems that the US
             # dictionary is richer. For example en_GB doesn't hyphenate
             # "format," but US does ("for-mat").
-            lang = 'en_US'
+            lang = "en_US"
         dic = pyphen.Pyphen(lang=lang)
     except (langdetect.lang_detect_exception.LangDetectException, KeyError):
         return None
@@ -183,15 +181,15 @@ def hyphenate(html: str) -> str:
     Returns:
         An HTML5-encoded string with hyphenation.
     """
-    soup = BeautifulSoup(html, features='html.parser')
+    soup = BeautifulSoup(html, features="html.parser")
     walk(soup, visit_and_hyphenate)
-    return str(soup.encode(formatter='html5'), 'utf8')
+    return str(soup.encode(formatter="html5"), "utf8")
 
 
 def use_minimal_html_formatting(html: str) -> str:
     """Reformats the HTML string using minimal encoding."""
-    bs = BeautifulSoup(html, features='html.parser')
-    return str(bs.encode(formatter='minimal'), 'utf8')
+    bs = BeautifulSoup(html, features="html.parser")
+    return str(bs.encode(formatter="minimal"), "utf8")
 
 
 def hyphenate_field(field: str) -> str:
@@ -212,8 +210,9 @@ def hyphenate_field(field: str) -> str:
 def hyphenate_action(editor) -> None:
     if editor.currentField is None:
         showWarning(
-            "You've run the word hyphenator without selecting a field.\n" +
-            "Please select a note field before running the word hyphenator.")
+            "You've run the word hyphenator without selecting a field.\n"
+            + "Please select a note field before running the word hyphenator."
+        )
         return None
 
     field = editor.note.fields[editor.currentField]
@@ -239,7 +238,8 @@ def on_editor_buttons_init(buttons: List, editor) -> None:
         func=hyphenate_action,
         tip="Hyphenate words ({})".format(shortcut),
         # Skip label, because we already provide an icon.
-        keys=shortcut)
+        keys=shortcut,
+    )
     buttons.append(css)
 
 

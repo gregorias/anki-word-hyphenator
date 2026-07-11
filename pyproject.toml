@@ -30,7 +30,7 @@ dependencies = [
 Repository = "https://github.com/gregorias/anki-word-hyphenator"
 
 [dependency-groups]
-dev = ["mypy>=1.16", "vulture~=2.14", "coverage", "types-beautifulsoup4"]
+dev = ["mypy>=1.16", "vulture~=2.16", "coverage", "types-beautifulsoup4"]
 
 [tool.uv]
 # We use Python only for the dependency management, not for packaging.
